@@ -11,7 +11,7 @@ import auth from "@react-native-firebase/auth"
 import { useFirestore } from "../firebase/useFirestore"
 import { Transaction } from "../types"
 import { navigate } from "../navigators"
-import firestore from "@react-native-firebase/firestore"
+import { TransactionItem } from "../components/TransactionItem"
 
 export const WelcomeScreen: FC<StackScreenProps<AppStackScreenProps<"Welcome">>> = observer(
   function WelcomeScreen() {
@@ -19,45 +19,23 @@ export const WelcomeScreen: FC<StackScreenProps<AppStackScreenProps<"Welcome">>>
     const [showIncome, setShowIncome] = useState<boolean>(true)
 
     const user = auth().currentUser
-
     const { data } = useFirestore<Transaction>("transaction")
+
     const logout = async () => await auth().signOut()
     const changeTab = () => setShowIncome((e) => !e)
 
-    const deleteDoc = async (id: string) => {
-      firestore()
-        .collection("transaction")
-        .doc(id)
-        .delete()
-        .then(() => {
-          console.log("deleted!")
-        })
-    }
-
-    const renderItem: ListRenderItem<Transaction> = ({
-      item: { title, amount, date, type, id },
-    }) => {
+    const renderItem: ListRenderItem<Transaction> = ({ item }) => {
+      const { type } = item
       if ((showIncome && type === "OUTCOME") || (!showIncome && type === "INCOME")) {
         return null
       }
-      return (
-        <View style={[$listItem, !showIncome && $outcome]}>
-          <View>
-            <Text preset="formLabel">{title}</Text>
-            <Text preset="bold">
-              {!showIncome ? "-" : "+"}
-              {amount} $
-            </Text>
-            <Text style={$date}>{date}</Text>
-          </View>
-          <Button preset="reversed" text="D" onPress={() => deleteDoc(id)} />
-        </View>
-      )
+      return <TransactionItem item={item} />
     }
 
-    const balance = (): number => {
-      return data.reduce((temp, e) => temp + (e.type === "INCOME" ? e.amount : -e.amount), 0)
-    }
+    const balance = (): number =>
+      data.reduce((result, e) => result + (e.type === "INCOME" ? e.amount : -e.amount), 0)
+
+    const handleAdd = () => navigate("AddTransaction")
 
     return (
       <Screen style={$root}>
@@ -84,12 +62,7 @@ export const WelcomeScreen: FC<StackScreenProps<AppStackScreenProps<"Welcome">>>
             />
           </View>
           <FlatList contentContainerStyle={$flatlist} data={data} renderItem={renderItem} />
-          <Button
-            style={$addButton}
-            preset="reversed"
-            text="+"
-            onPress={() => navigate("AddTransaction")}
-          />
+          <Button style={$addButton} preset="reversed" text="+" onPress={handleAdd} />
         </View>
       </Screen>
     )
@@ -144,22 +117,4 @@ const $tab: ViewStyle = {
 
 const $flatlist: ViewStyle = {
   paddingTop: spacing.medium,
-}
-
-const $listItem: ViewStyle = {
-  backgroundColor: colors.palette.secondary100,
-  padding: spacing.medium,
-  borderRadius: spacing.tiny,
-  marginBottom: spacing.medium,
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-}
-
-const $outcome: ViewStyle = {
-  backgroundColor: colors.palette.primary100,
-}
-
-const $date: TextStyle = {
-  fontSize: 12,
 }

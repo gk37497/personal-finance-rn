@@ -2,12 +2,13 @@ import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
 import { Alert, TextStyle, View, ViewStyle } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
-import { Button, Screen, Text, TextField } from "../components"
+import { Button, Screen, Text } from "../components"
 import { colors, spacing } from "../theme"
 import { AuthStackScreenProps } from "../navigators/AuthStack"
 import { navigate } from "../navigators"
-import { useForm, Controller } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import auth from "@react-native-firebase/auth"
+import Field from "../components/Field"
 
 type SignupValues = {
   email: string
@@ -30,36 +31,8 @@ export const SignupScreen: FC<StackScreenProps<AuthStackScreenProps<"Signup">>> 
       <Screen style={$root} contentContainerStyle={$container} preset="scroll">
         <View style={$formWrapper}>
           <Text text="Sign up" preset="heading" style={$mailField} />
-
-          <Controller
-            control={control}
-            rules={{ required: true }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextField
-                placeholder="email"
-                containerStyle={$mailField}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-              />
-            )}
-            name="email"
-          />
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextField
-                placeholder="password"
-                containerStyle={$mailField}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                secureTextEntry
-                value={value}
-              />
-            )}
-            name="password"
-          />
-
+          <Field<SignupValues> control={control} name="email" />
+          <Field<SignupValues> control={control} name="password" secure />
           <Button text="Signup" preset="reversed" onPress={handleSubmit(onSubmit)} />
           <Button
             text="Login"
@@ -85,7 +58,6 @@ const $container: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   paddingHorizontal: spacing.large,
-  // backgroundColor: colors.errorBackground,
 }
 
 const $formWrapper: ViewStyle = {

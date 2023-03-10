@@ -7,11 +7,13 @@ import { spacing } from "../theme"
 type FieldProps<TFieldValues extends FieldValues> = {
   control: Control<TFieldValues>
   name: FieldPath<TFieldValues>
+  secure?: boolean
 }
 
 const Field = <TFieldValues extends Record<string, any>>({
   control,
   name,
+  secure = false,
 }: FieldProps<TFieldValues>) => {
   return (
     <Controller
@@ -24,6 +26,7 @@ const Field = <TFieldValues extends Record<string, any>>({
           onChangeText={onChange}
           onBlur={onBlur}
           value={value}
+          secureTextEntry={secure}
         />
       )}
       name={name}

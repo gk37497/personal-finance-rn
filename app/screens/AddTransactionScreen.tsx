@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ActivityIndicator, Alert, StyleSheet, TextStyle, View, ViewStyle } from "react-native"
+import { Alert, TextStyle, View, ViewStyle } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 
 import { Button, Header, ListItem, Screen, Text } from "../components"
@@ -13,6 +13,7 @@ import Field from "../components/Field"
 import { spacing } from "../theme"
 import auth from "@react-native-firebase/auth"
 import firestore from "@react-native-firebase/firestore"
+import { LoadingView } from "../components/LoadingView"
 
 export const AddTransactionScreen: FC<StackScreenProps<AppStackScreenProps<"AddTransaction">>> =
   observer(function AddTransactionScreen() {
@@ -28,8 +29,8 @@ export const AddTransactionScreen: FC<StackScreenProps<AppStackScreenProps<"AddT
     } = useForm<CreateTransaction>()
 
     const changeTab = (value: boolean) => setShowIncome(value)
-
     const user = auth().currentUser
+
     const onSubmit = async (formValeus: CreateTransaction) => {
       setLoading(true)
       const newTransaction: Partial<Transaction> = {
@@ -60,7 +61,9 @@ export const AddTransactionScreen: FC<StackScreenProps<AppStackScreenProps<"AddT
           <View style={$formWrapper}>
             <Text text="Title" preset="formLabel" style={$field} />
             <Field<CreateTransaction> control={control} name="title" />
+
             <Text text="Type" preset="formLabel" style={$field} />
+
             <View style={$buttons}>
               <Button
                 text="Income"
@@ -76,8 +79,10 @@ export const AddTransactionScreen: FC<StackScreenProps<AppStackScreenProps<"AddT
                 onPress={() => changeTab(false)}
               />
             </View>
+
             <Text text="Amount" preset="formLabel" style={$field} />
             <Field<CreateTransaction> control={control} name="amount" />
+
             <ListItem topSeparator height={10} />
             <Button
               text="Save"
@@ -87,11 +92,7 @@ export const AddTransactionScreen: FC<StackScreenProps<AppStackScreenProps<"AddT
             />
           </View>
         </Screen>
-        {loading && (
-          <View style={[$loaderWrapper, StyleSheet.absoluteFill]}>
-            <ActivityIndicator animating size="large" />
-          </View>
-        )}
+        <LoadingView loading={loading} />
       </>
     )
   })
@@ -120,9 +121,4 @@ const $tab: ViewStyle = {
 
 const $field: TextStyle = {
   marginBottom: spacing.small,
-}
-
-const $loaderWrapper: ViewStyle = {
-  justifyContent: "center",
-  alignItems: "center",
 }

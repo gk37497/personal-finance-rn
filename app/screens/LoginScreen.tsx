@@ -1,20 +1,19 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { Alert, Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
+import { Alert, TextStyle, View, ViewStyle } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
-import { Button, Screen, Text, TextField } from "../components"
+import { Button, Screen, Text } from "../components"
 import { colors, spacing } from "../theme"
 import { AuthStackScreenProps } from "../navigators/AuthStack"
 import auth from "@react-native-firebase/auth"
 import { navigate } from "../navigators"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
+import Field from "../components/Field"
 
 type LoginValues = {
   email: string
   password: string
 }
-
-const welcomeLogo = require("../../assets/images/logo.png")
 
 export const LoginScreen: FC<StackScreenProps<AuthStackScreenProps<"Signup">>> = observer(
   function SignupScreen() {
@@ -26,7 +25,7 @@ export const LoginScreen: FC<StackScreenProps<AuthStackScreenProps<"Signup">>> =
       await auth()
         .signInWithEmailAndPassword(formValues.email, formValues.password)
         .then(() => {
-          console.log("User signed in!")
+          console.log("User logged in!")
         })
         .catch((error) => {
           Alert.alert(JSON.stringify(error))
@@ -36,36 +35,9 @@ export const LoginScreen: FC<StackScreenProps<AuthStackScreenProps<"Signup">>> =
     return (
       <Screen style={$root} contentContainerStyle={$container} preset="scroll">
         <View style={$formWrapper}>
-          <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
           <Text text="Login" preset="heading" style={$field} />
-          <Controller
-            control={control}
-            rules={{ required: true }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextField
-                placeholder="email"
-                containerStyle={$field}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-              />
-            )}
-            name="email"
-          />
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextField
-                placeholder="password"
-                containerStyle={$field}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                secureTextEntry
-                value={value}
-              />
-            )}
-            name="password"
-          />
+          <Field<LoginValues> control={control} name="email" />
+          <Field<LoginValues> control={control} name="password" secure />
           <Button text="Login" preset="reversed" onPress={handleSubmit(login)} />
           <Button
             text="Register"
@@ -91,7 +63,6 @@ const $container: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   paddingHorizontal: spacing.large,
-  // backgroundColor: colors.errorBackground,
 }
 
 const $formWrapper: ViewStyle = {
@@ -107,10 +78,4 @@ const $field: TextStyle = {
 
 const $registerButton: ViewStyle = {
   marginTop: spacing.medium,
-}
-
-const $welcomeLogo: ImageStyle = {
-  height: 88,
-  width: "100%",
-  marginBottom: spacing.huge,
 }
