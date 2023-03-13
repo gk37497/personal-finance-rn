@@ -1,35 +1,39 @@
 import React, { FC } from "react"
 import { observer } from "mobx-react-lite"
-import { Alert, TextStyle, View, ViewStyle } from "react-native"
+import { TextStyle, View, ViewStyle } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 import { Button, Screen, Text } from "../components"
 import { colors, spacing } from "../theme"
 import { AuthStackScreenProps } from "../navigators/AuthStack"
-import auth from "@react-native-firebase/auth"
 import { navigate } from "../navigators"
 import { useForm } from "react-hook-form"
 import Field from "../components/Field"
+import { useStores } from "../models"
 
-type LoginValues = {
+export type LoginValues = {
   email: string
   password: string
 }
 
 export const LoginScreen: FC<StackScreenProps<AuthStackScreenProps<"Signup">>> = observer(
   function SignupScreen() {
+    const { userStore } = useStores()
+
     const { control, handleSubmit } = useForm<LoginValues>({
       defaultValues: { email: "", password: "" },
     })
 
     const login = async (formValues: LoginValues) => {
-      await auth()
-        .signInWithEmailAndPassword(formValues.email, formValues.password)
-        .then(() => {
-          console.log("User logged in!")
-        })
-        .catch((error) => {
-          Alert.alert(JSON.stringify(error))
-        })
+      await userStore.login(formValues)
+      console.log("USER", userStore.user)
+      // await auth()
+      //   .signInWithEmailAndPassword(formValues.email, formValues.password)
+      //   .then(() => {
+      //     console.log("User logged in!")
+      //   })
+      //   .catch((error) => {
+      //     Alert.alert(JSON.stringify(error))
+      //   })
     }
 
     return (
